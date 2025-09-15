@@ -53,13 +53,21 @@ async function run() {
        const filter={_id:new ObjectId(catagoryid),'items._id':productid}
        const data=req.body
        const updatedoc={
-        $set:{data}
-       }
-       const options={upsert:true}
-       const result=await marketplace.updateOne(filter,updatedoc,options)
+        $set:{
+       "items.$.image": data.image,
+        "items.$.name": data.name,
+        "items.$.brand_name": data.brand,
+        "items.$.main_quantity": data.stock,
+        "items.$.minimum_selling_quantity": data.sell,
+        "items.$.rating": data.rating,
+        "items.$.short_description": data.description
+        }
+      }; 
+       const result=await marketplace.updateOne(filter,updatedoc)
        res.send(result)
     })
-  } finally {
+  } 
+  finally {
     // Ensures that the client will close when you finish/error
    // await client.close();
   }
