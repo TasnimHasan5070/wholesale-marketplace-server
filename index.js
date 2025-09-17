@@ -66,6 +66,17 @@ async function run() {
        const result=await marketplace.updateOne(filter,updatedoc)
        res.send(result)
     })
+
+    app.post('/products',async(req,res)=>{
+               const category=req.body.category
+               const newitem={...req.body,_id:new ObjectId()}
+               const result=await marketplace.updateOne(
+               {'category':category},
+                {$push:{items:newitem}}
+               )
+              res.send(result) 
+            })
+
   } 
   finally {
     // Ensures that the client will close when you finish/error
