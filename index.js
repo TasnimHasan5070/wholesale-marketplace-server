@@ -1,9 +1,9 @@
+require('dotenv').config()
 const express = require('express');
 var cors = require('cors')
 const app=express()
 app.use(cors())
 app.use(express.json({ limit: "10mb" }))
-require('dotenv').config()
 const port=process.env.PORT||3000;
 const db_username=process.env.DB_USER
 const db_password=process.env.DB_PASS
@@ -22,9 +22,9 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    //await client.connect();
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    //await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
     const marketplace=client.db('wholesale_platfrom').collection('marketplace')
     app.get('/products',async(req,res)=>{
