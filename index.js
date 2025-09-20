@@ -69,7 +69,9 @@ async function run() {
 
     app.post('/products',async(req,res)=>{
                const category=req.body.category
-               const newitem={...req.body,_id:new ObjectId()}
+               const specificcatagory=await marketplace.findOne({category})
+               const newid=specificcatagory.items.length+50
+               const newitem={...req.body,_id: String(newid) }
                const result=await marketplace.updateOne(
                {'category':category},
                 {$push:{items:newitem}}
@@ -77,7 +79,60 @@ async function run() {
               res.send(result) 
             })
 
-  } 
+
+    app.patch('/products/:catagoryid/:productid/stock',async(req,res)=>{
+      const main_quantity=req.body.main_quantity
+      const quantity=req.body.quantity
+      const catagoryid=req.params.catagoryid
+      const productid=req.params.productid
+      const selectedproduct={_id:new ObjectId(catagoryid),'items._id':productid}
+      const updatedoc={
+                $set: {
+      'items.$.main_quantity': main_quantity - quantity
+    }
+      }
+      const result=await marketplace.updateOne(selectedproduct,updatedoc)
+      res.send(result)
+    })
+
+    const cartproduct=client.db('wholesale_platfrom').collection('cartproduct')
+    app.post('/cart',async(req,res)=>{
+      //const categoryid=req.params.categoryid
+      //const productid=req.params.productid
+      //const selectedproduct={_id:new ObjectId(categoryid),'items._id':productid}
+      const product=req.body
+      const result=await cartproduct.insertOne(product)
+      res.send(result)
+    })
+
+    app.get('/cart',async(req,res)=>{
+      const product=req.body
+      const result=await cartproduct.find().toArray()
+      res.send(result)
+    })
+
+    app.delete('/cart/:_id',async(req,res)=>{
+      const id=req.params._id
+      const result=await cartproduct.deleteOne({_id:id})
+      res.send(result)
+    })
+
+    /*app.patch('/cart/:catagoryid/:productid',async(req,res)=>{
+      const main_quantity=req.body.main_quantity
+      const quantity=req.body.quantity
+      const catagoryid=req.params.catagoryid
+      const productid=req.params.productid
+      const selectedproduct={'_id':productid,'catagoryid':catagoryid}
+      const updatedoc={
+                $set: {
+      'items.$.main_quantity': main_quantity + quantity
+    }
+      }
+      const result=await marketplace.updateOne(selectedproduct,updatedoc)
+      res.send(result)
+    })*/
+   
+}
   finally {
     // Ensures that the client will close when you finish/error
    // await client.close();
